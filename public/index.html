@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liquidation Radar | See The Danger Zones</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%);
+      min-height: 100vh;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #00ff88, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 30px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .coin-btn {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 2px solid #333;
+      border-radius: 8px;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .coin-btn:hover {
+      border-color: #00ff88;
+      color: #fff;
+    }
+
+    .coin-btn.active {
+      border-color: #00ff88;
+      background: #00ff8822;
+      color: #00ff88;
+    }
+
+    .price-banner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+      background: #0d0d1a;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .price-main {
+      text-align: center;
+    }
+
+    .price-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .price-change {
+      font-size: 1rem;
+      margin-top: 4px;
+    }
+
+    .price-change.positive { color: #00ff88; }
+    .price-change.negative { color: #ff4d4d; }
+
+    .stat-item {
+      text-align: center;
+      padding: 0 20px;
+      border-left: 1px solid #333;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 16px;
+      background: #00ff88;
+      border-radius: 2px;
+    }
+
+    .levels-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+    }
+
+    .levels-table th {
+      text-align: left;
+      padding: 12px;
+      background: #0d0d1a;
+      color: #888;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .levels-table td {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+      font-size: 14px;
+    }
+
+    .levels-table tr:hover {
+      background: #0d0d1a;
+    }
+
+    .leverage-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #00ff8822;
+      color: #00ff88;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .leverage-badge.high {
+      background: #ff4d4d22;
+      color: #ff4d4d;
+    }
+
+    .long-price { color: #ff4d4d; }
+    .short-price { color: #00ff88; }
+
+    .distance {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .analysis-box {
+      background: #0d0d1a;
+      border: 1px solid #1a1a3e;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .analysis-text {
+      line-height: 1.7;
+      color: #ccc;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .risk-low { background: #00ff8822; color: #00ff88; }
+    .risk-medium { background: #f7931e22; color: #f7931e; }
+    .risk-high { background: #ff4d4d22; color: #ff4d4d; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #555;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: #00ff88;
+      text-decoration: none;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid #333;
+      color: #666;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .refresh-btn:hover {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .timestamp {
+      color: #555;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Liquidation Radar</h1>
+    <p class="subtitle">See where leveraged positions get wiped out</p>
+
+    <div class="controls">
+      <button class="coin-btn active" onclick="selectCoin('BTC')">BTC</button>
+      <button class="coin-btn" onclick="selectCoin('ETH')">ETH</button>
+      <button class="coin-btn" onclick="selectCoin('SOL')">SOL</button>
+    </div>
+
+    <div id="content">
+      <div class="loading">Loading market data...</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built by <a href="https://github.com/occydefi/liquidation-radar">Liquidation-Radar Agent</a> for Colosseum Hackathon
+  </div>
+
+  <script>
+    let currentSymbol = 'BTC';
+
+    async function loadData(symbol) {
+      currentSymbol = symbol;
+
+      // Update active button
+      document.querySelectorAll('.coin-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === symbol);
+      });
+
+      document.getElementById('content').innerHTML = '<div class="loading">Loading market data...</div>';
+
+      try {
+        const res = await fetch(`/api/analysis?symbol=${symbol}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error);
+
+        renderData(data);
+      } catch (err) {
+        document.getElementById('content').innerHTML = `<div class="loading">Error: ${err.message}</div>`;
+      }
+    }
+
+    function renderData(data) {
+      const changeClass = data.change24h >= 0 ? 'positive' : 'negative';
+      const changeSign = data.change24h >= 0 ? '+' : '';
+
+      // Determine risk level from analysis
+      let riskLevel = 'medium';
+      if (data.analysis.toLowerCase().includes('low risk') || data.analysis.toLowerCase().includes('risk level: low')) {
+        riskLevel = 'low';
+      } else if (data.analysis.toLowerCase().includes('high risk') || data.analysis.toLowerCase().includes('risk level: high')) {
+        riskLevel = 'high';
+      }
+
+      const html = `
+        <div class="price-banner">
+          <div class="price-main">
+            <div class="price-value">$${data.currentPrice.toLocaleString()}</div>
+            <div class="price-change ${changeClass}">${changeSign}${data.change24h}% (24h)</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${(data.openInterest / 1000).toFixed(1)}K</div>
+            <div class="stat-label">OPEN INTEREST</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${data.fundingRate > 0 ? '+' : ''}${data.fundingRate}%</div>
+            <div class="stat-label">FUNDING RATE</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${data.longShortRatio}</div>
+            <div class="stat-label">LONG/SHORT</div>
+          </div>
+        </div>
+
+        <div class="analysis-box">
+          <div class="header-row">
+            <span class="risk-badge risk-${riskLevel}">${riskLevel.toUpperCase()} RISK</span>
+            <span class="timestamp">Updated: ${new Date(data.timestamp).toLocaleTimeString()}</span>
+          </div>
+          <div class="analysis-text">${data.analysis.replace(/\n/g, '<br>')}</div>
+        </div>
+
+        <div class="header-row">
+          <div class="section-title">Liquidation Levels</div>
+          <button class="refresh-btn" onclick="loadData('${currentSymbol}')">Refresh</button>
+        </div>
+
+        <table class="levels-table">
+          <thead>
+            <tr>
+              <th>Leverage</th>
+              <th>Long Liquidation</th>
+              <th>Short Liquidation</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.liquidationLevels.map(level => `
+              <tr>
+                <td>
+                  <span class="leverage-badge ${level.leverage >= 50 ? 'high' : ''}">${level.leverage}x</span>
+                </td>
+                <td>
+                  <span class="long-price">$${level.longLiquidationPrice.toLocaleString()}</span>
+                  <span class="distance">(-${level.longDistancePercent}%)</span>
+                </td>
+                <td>
+                  <span class="short-price">$${level.shortLiquidationPrice.toLocaleString()}</span>
+                  <span class="distance">(+${level.shortDistancePercent}%)</span>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('content').innerHTML = html;
+    }
+
+    function selectCoin(symbol) {
+      loadData(symbol);
+    }
+
+    // Initial load
+    loadData('BTC');
+  </script>
+</body>
+</html>
